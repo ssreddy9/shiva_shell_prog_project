@@ -63,7 +63,7 @@ js/db.js  js/crypto.js  js/backup.js      storage, vault encryption, backup/merg
 js/seed.js                                your planner and learning checklist data
 js/kinds.js  js/stats.js  js/charts.js    entry types, weekly goals, small SVG charts
 js/views/*.js                             one file per screen
-fonts/                                    NTR and Suguna (see fonts/README.md)
+fonts/                                    self-hosted open-licence fonts (see fonts/README.md)
 ```
 
 After changing any file, bump `VERSION` in `sw.js` so installed copies pick up the update.

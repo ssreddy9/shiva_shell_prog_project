@@ -1,8 +1,17 @@
 # Fonts
 
-| File | Font | Source | Used for |
-|---|---|---|---|
-| `NTR.woff2` | NTR 0.30 by Purushoth Kumar Guthula, © SiliconAndhra | Supplied by the app owner (also published on Google Fonts under the SIL Open Font License) | Headings, titles, your writing (diary, posts, quotes, stories); Telugu anywhere in the UI |
-| `Suguna.woff2` | Suguna 0.5 (handwritten Telugu, Telugu script only) | Supplied by the app owner; font metadata points to http://ten.nagaraja.info and carries no licence text | Telugu inside your writing |
+All fonts are licensed under the SIL Open Font License 1.1 (full texts in
+`licenses/`). They were taken from the Fontsource packages (Google Fonts
+builds) and are self-hosted so the app works offline.
 
-Both were converted from the supplied `.otf`/`.ttf` to WOFF2 (outlines unchanged).
+| File | Font | Used for |
+|---|---|---|
+| `instrument-serif*.woff2` | Instrument Serif (regular + italic) | Headings in the default **Modern** style |
+| `plus-jakarta-sans*.woff2` | Plus Jakarta Sans (variable) | Text and UI in **Modern** |
+| `fraunces.woff2` | Fraunces (variable) | Headings in **Classic** |
+| `outfit.woff2` | Outfit (variable) | Text and UI in **Classic** |
+| `bricolage-grotesque.woff2` | Bricolage Grotesque (variable) | Headings and text in **Bold** |
+| `anek-telugu.woff2` | Anek Telugu (variable, Telugu subset) | Telugu text in every style |
+
+Browsers only download the faces a page actually uses, so the styles you
+don't pick cost nothing.

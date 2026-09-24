@@ -6,7 +6,13 @@ import { buildICS } from '../ics.js';
 import { applyTheme } from '../theme.js';
 
 export const title = 'Settings';
-export const APP_VERSION = 'v7';
+const FONTS = [
+  ['modern', 'Modern', 'Instrument Serif + Plus Jakarta Sans', '"Instrument Serif", serif', 400],
+  ['classic', 'Classic', 'Fraunces + Outfit', 'Fraunces, serif', 600],
+  ['bold', 'Bold', 'Bricolage Grotesque', '"Bricolage Grotesque", sans-serif', 800],
+  ['system', 'Simple', 'Your device’s own font', 'system-ui, sans-serif', 800],
+];
+export const APP_VERSION = 'v8';
 
 const THEMES = [['indigo', 'Indigo'], ['teal', 'Teal'], ['rose', 'Rose'], ['violet', 'Violet'], ['emerald', 'Emerald'], ['amber', 'Amber'], ['ocean', 'Ocean blue'], ['slate', 'Slate'], ['sunset', 'Sunset (gradient)']];
 
@@ -14,6 +20,7 @@ export async function render(el) {
   const [name, currency, theme, accent, lockApp, autoLock, lastBackup, meta] = await Promise.all([
     getSetting('name', ''), getSetting('currency', 'USD'), getSetting('theme', 'auto'), getSetting('accent', 'indigo'),
     getSetting('lockApp', false), getSetting('autoLock', 5), getSetting('lastBackup', 0), cryptoMeta()]);
+  const fontStyle = await getSetting('fontStyle', 'modern');
 
   el.append(h('div.page-head', h('h1', 'Settings')));
   const sec = (t, ...kids) => h('section.card.settings-sec', h('h2', t), ...kids);
@@ -32,7 +39,12 @@ export async function render(el) {
     row('Colour theme', h('div.swatch-wrap', h('div.swatches', THEMES.map(([a, label]) =>
       h('button.swatch-btn.acc-' + a, { 'aria-label': label, title: label, 'aria-pressed': String(a === (THEMES.some(t => t[0] === accent) ? accent : 'indigo')), onclick: async () => { await setSetting('accent', a); applyTheme(); } }))),
         h('small.muted', 'Selected: ' + (THEMES.find(t => t[0] === accent) || THEMES[0])[1])),
-      'One calm colour for the whole app. “Sunset” is the multi-colour gradient look.')));
+      'One calm colour for the whole app. “Sunset” is the multi-colour gradient look.'),
+    row('Font style', h('div.font-choices', FONTS.map(([v, label, desc, family, weight]) =>
+      h('button.font-choice', { 'aria-pressed': String(v === fontStyle), onclick: async () => { await setSetting('fontStyle', v); applyTheme(); } },
+        h('span.font-sample', { style: { fontFamily: family, fontWeight: weight } }, 'Aa'),
+        h('span', h('strong', label), h('small.muted', desc))))),
+      'Headings and text. Telugu uses Anek Telugu in every style.')));
 
   // security
   el.append(sec('Security',

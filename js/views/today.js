@@ -43,7 +43,7 @@ export async function render(el) {
   el.append(h('section.hero',
     h('div',
       h('p.eyebrow', (name ? name + ' / ' : '') + 'daily log'),
-      h('h1', greeting() + (name ? ', ' + name : '') + '.'),
+      h('h1', greeting() + (name ? ', ' : '.'), name ? h('em', name + '.') : null),
       h('p.muted', fmtLongDate(today), streak ? h('span.streak', ' · 🔥 ' + streak + '-day logging streak') : null)),
     catSvg(56)));
 
