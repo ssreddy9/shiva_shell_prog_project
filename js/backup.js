@@ -31,7 +31,7 @@ function deser(v) {
 }
 
 export async function exportBackup() {
-  const parts = ['{"app":"lifelog","version":1,"exportedAt":' + Date.now() + ',"stores":{'];
+  const parts = ['{"app":"dinalekha","version":1,"exportedAt":' + Date.now() + ',"stores":{'];
   let firstStore = true;
   for (const name of Object.keys(STORES)) {
     parts.push((firstStore ? '' : ',') + JSON.stringify(name) + ':[');
@@ -51,7 +51,7 @@ const SKIP_SETTINGS = new Set(['crypto', 'lastBackup', 'seeded']);
 export async function importBackup(file, onProgress = () => {}) {
   onProgress('Reading file…');
   const json = JSON.parse(await file.text());
-  if (json.app !== 'lifelog' || !json.stores) throw new Error('This is not a LifeLog backup file.');
+  if (!['dinalekha', 'lifelog'].includes(json.app) || !json.stores) throw new Error('This is not a Dinalekha backup file.');
   const S = {};
   for (const [name, rows] of Object.entries(json.stores)) if (name in STORES) S[name] = deser(rows);
 

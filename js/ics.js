@@ -16,7 +16,7 @@ function firstOnOrAfter(start, day) {
 }
 
 export function buildICS(blocks, learning = []) {
-  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//LifeLog//Weekly planner//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:LifeLog week'];
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Dinalekha//Weekly planner//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Dinalekha week'];
   const start = isoDate();
   for (const b of blocks) {
     if (!b.start) continue;

@@ -1,5 +1,5 @@
 // Offline support: cache the app shell, serve it cache-first, refresh in the background.
-const VERSION = 'lifelog-v1';
+const VERSION = 'dinalekha-v2';
 const SHELL = [
   './',
   './index.html',

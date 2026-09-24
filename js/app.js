@@ -60,7 +60,7 @@ async function renderView({ keepScroll = false } = {}) {
     a.classList.toggle('active', on);
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
-  document.title = (ROUTES[name].title || 'LifeLog') + ' · LifeLog';
+  document.title = (ROUTES[name].title || 'Dinalekha') + ' · Dinalekha';
 }
 
 let pending = null;
@@ -83,7 +83,7 @@ function shell() {
   const app = document.getElementById('app');
   clear(app);
   sideNav = h('nav.sidebar', { 'aria-label': 'Main' },
-    h('a.brand', { href: '#/today' }, catSvg(34), h('span', 'LifeLog')),
+    h('a.brand', { href: '#/today' }, catSvg(34), h('span.brand-text', h('strong', 'Dinalekha'), h('small', 'the story of your days'))),
     NAV.map(([k, ic, label]) => h('a.nav-link', { href: '#/' + k, 'data-nav': k }, icon(ic), h('span', label))),
     h('button.btn.primary.side-add', { onclick: quickAddSheet }, icon('plus', 18), 'Log something'));
   tabNav = h('nav.tabbar', { 'aria-label': 'Main' }, TABBAR.map(([k, ic, label]) => h('a.tab', { href: '#/' + k, 'data-nav': k }, icon(ic, 22), h('span', label))));
@@ -107,7 +107,7 @@ async function lockScreen() {
       if (await unlock(pass.value)) { appLocked = false; shell(); renderView(); }
       else { err.textContent = 'Wrong passphrase.'; pass.select(); }
     } },
-      catSvg(72), h('h1', name ? `Hi ${name}` : 'LifeLog'), h('p.muted', 'Enter your passphrase to open your journal.'),
+      catSvg(72), h('h1', name ? `Hi ${name}` : 'Dinalekha'), h('p.muted', 'Enter your passphrase to open your journal.'),
       pass, h('button.btn.primary.wide', { type: 'submit' }, 'Unlock'), err)));
   setTimeout(() => pass.focus(), 50);
 }

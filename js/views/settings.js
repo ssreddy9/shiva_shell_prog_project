@@ -9,7 +9,7 @@ export const title = 'Settings';
 
 export async function render(el) {
   const [name, currency, theme, accent, lockApp, autoLock, lastBackup, meta] = await Promise.all([
-    getSetting('name', ''), getSetting('currency', 'USD'), getSetting('theme', 'auto'), getSetting('accent', 'indigo'),
+    getSetting('name', ''), getSetting('currency', 'USD'), getSetting('theme', 'auto'), getSetting('accent', 'sunset'),
     getSetting('lockApp', false), getSetting('autoLock', 5), getSetting('lastBackup', 0), cryptoMeta()]);
 
   el.append(h('div.page-head', h('h1', 'Settings')));
@@ -26,8 +26,8 @@ export async function render(el) {
   el.append(sec('Appearance',
     row('Theme', h('select', { onchange: async e => { await setSetting('theme', e.target.value); applyTheme(); } },
       [['auto', 'Match device'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => h('option', { value: v, selected: v === theme }, l)))),
-    row('Accent', h('div.swatches', ['indigo', 'violet', 'pink', 'teal', 'orange'].map(a =>
-      h('button.swatch-btn.acc-' + a, { 'aria-label': a, 'aria-pressed': String(a === accent), onclick: async () => { await setSetting('accent', a); applyTheme(); } }))))));
+    row('Colour theme', h('div.swatches', ['sunset', 'ocean', 'berry', 'forest', 'mango'].map(a =>
+      h('button.swatch-btn.acc-' + a, { 'aria-label': a, title: a[0].toUpperCase() + a.slice(1), 'aria-pressed': String(a === accent || (a === 'sunset' && !['ocean', 'berry', 'forest', 'mango'].includes(accent))), onclick: async () => { await setSetting('accent', a); applyTheme(); } }))))));
 
   // security
   el.append(sec('Security',
@@ -60,10 +60,10 @@ export async function render(el) {
       h('button.btn.primary', { onclick: async () => {
         toast('Preparing backup…');
         const blob = await exportBackup();
-        const fname = `lifelog-backup-${isoDate()}.json`;
+        const fname = `dinalekha-backup-${isoDate()}.json`;
         const file = new File([blob], fname, { type: 'application/json' });
         if (navigator.canShare && navigator.canShare({ files: [file] }) && matchMedia('(pointer:coarse)').matches) {
-          try { await navigator.share({ files: [file], title: 'LifeLog backup' }); } catch { download(fname, blob); }
+          try { await navigator.share({ files: [file], title: 'Dinalekha backup' }); } catch { download(fname, blob); }
         } else download(fname, blob);
         status.textContent = 'Last backup just now (' + (blob.size / 1048576).toFixed(1) + ' MB)';
       } }, icon('down', 18), 'Export backup'),
@@ -81,7 +81,7 @@ export async function render(el) {
   // calendar
   el.append(sec('Calendar',
     row('Add your weekly plan to your calendar', h('button.btn', { onclick: async () => {
-      download('lifelog-week.ics', new Blob([buildICS(await db.all('schedule'), await db.all('learning'))], { type: 'text/calendar' }));
+      download('dinalekha-week.ics', new Blob([buildICS(await db.all('schedule'), await db.all('learning'))], { type: 'text/calendar' }));
     } }, icon('cal', 16), 'Download .ics'), 'Repeating events for every tracked block, plus the 12 learning-week milestones. Works with Apple, Google and Outlook calendars.')));
 
   // storage
@@ -114,5 +114,5 @@ export async function render(el) {
       location.reload();
     } }, icon('trash', 16), 'Erase'))));
 
-  el.append(h('p.muted.small.center', 'LifeLog · works offline · your data never leaves your devices unless you export it.'));
+  el.append(h('p.muted.small.center', 'Dinalekha · works offline · your data never leaves your devices unless you export it.'));
 }
