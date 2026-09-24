@@ -90,18 +90,38 @@ export async function render(el) {
     h('details.anchors', h('summary', 'Fixed anchors'), h('ul', ANCHORS.map(a => h('li', a))))));
 
   // ---- mood & highlight
+  // Saved without re-rendering the page, so text being typed is never lost.
   const d = day || { date: today };
+  const hl = h('textarea', { rows: 3, placeholder: 'One line about today — a highlight, a thought, a thank-you…', 'aria-label': 'Note about today' });
+  hl.value = d.highlight || '';
+  const status = h('span.save-status.muted.small', d.highlight ? 'Saved' : '');
+  const saveDay = async (announce = false) => {
+    d.highlight = hl.value.trim();
+    await db.put('days', d, { silent: true });
+    status.textContent = 'Saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    if (announce) toast("Saved to today — see it any time in Calendar");
+  };
+  let typing;
+  hl.addEventListener('input', () => { status.textContent = 'Saving…'; clearTimeout(typing); typing = setTimeout(() => saveDay(), 800); });
+  hl.addEventListener('blur', () => { clearTimeout(typing); if (hl.value.trim() !== (d.highlight || '')) saveDay(); });
   const moodBtns = MOODS.map((m, i) => h('button.mood-btn', {
     'aria-label': MOOD_WORDS[i], 'aria-pressed': String(d.mood === i + 1), title: MOOD_WORDS[i],
-    onclick: async () => { d.mood = d.mood === i + 1 ? null : i + 1; await db.put('days', d); },
+    onclick: async () => {
+      d.mood = d.mood === i + 1 ? null : i + 1;
+      moodBtns.forEach((b, j) => b.setAttribute('aria-pressed', String(d.mood === j + 1)));
+      await saveDay();
+    },
   }, m));
-  const hl = h('textarea', { rows: 2, placeholder: 'One line about today — a highlight, a thought, a thank-you…' });
-  hl.value = d.highlight || '';
-  hl.addEventListener('change', async () => { d.highlight = hl.value.trim(); await db.put('days', d, { silent: true }); toast('Saved'); });
   grid.append(h('section.card',
     h('div.card-head', h('h2', icon('heart', 18), "How's today?")),
     h('div.mood-row', moodBtns), hl,
-    h('button.btn.ghost.small', { onclick: () => editEntry('diary') }, icon('book', 16), 'Write a full diary entry')));
+    h('div.save-row',
+      h('button.btn.primary.small', { onclick: () => { clearTimeout(typing); saveDay(true); } }, icon('check', 16), 'Save'),
+      h('button.btn.ghost.small', { onclick: async () => {
+        clearTimeout(typing); await saveDay();
+        editEntry('diary', null, { body: hl.value.trim(), mood: d.mood || null });
+      } }, icon('book', 16), 'Turn into diary entry'),
+      status)));
 
   // ---- week goals
   const g = stats.goals;

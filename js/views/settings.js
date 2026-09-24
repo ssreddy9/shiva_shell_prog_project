@@ -7,9 +7,11 @@ import { applyTheme } from '../theme.js';
 
 export const title = 'Settings';
 
+const THEMES = [['indigo', 'Indigo'], ['teal', 'Teal'], ['rose', 'Rose'], ['violet', 'Violet'], ['emerald', 'Emerald'], ['amber', 'Amber'], ['ocean', 'Ocean blue'], ['slate', 'Slate'], ['sunset', 'Sunset (gradient)']];
+
 export async function render(el) {
   const [name, currency, theme, accent, lockApp, autoLock, lastBackup, meta] = await Promise.all([
-    getSetting('name', ''), getSetting('currency', 'USD'), getSetting('theme', 'auto'), getSetting('accent', 'sunset'),
+    getSetting('name', ''), getSetting('currency', 'USD'), getSetting('theme', 'auto'), getSetting('accent', 'indigo'),
     getSetting('lockApp', false), getSetting('autoLock', 5), getSetting('lastBackup', 0), cryptoMeta()]);
 
   el.append(h('div.page-head', h('h1', 'Settings')));
@@ -26,8 +28,10 @@ export async function render(el) {
   el.append(sec('Appearance',
     row('Theme', h('select', { onchange: async e => { await setSetting('theme', e.target.value); applyTheme(); } },
       [['auto', 'Match device'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => h('option', { value: v, selected: v === theme }, l)))),
-    row('Colour theme', h('div.swatches', ['sunset', 'ocean', 'berry', 'forest', 'mango'].map(a =>
-      h('button.swatch-btn.acc-' + a, { 'aria-label': a, title: a[0].toUpperCase() + a.slice(1), 'aria-pressed': String(a === accent || (a === 'sunset' && !['ocean', 'berry', 'forest', 'mango'].includes(accent))), onclick: async () => { await setSetting('accent', a); applyTheme(); } }))))));
+    row('Colour theme', h('div.swatch-wrap', h('div.swatches', THEMES.map(([a, label]) =>
+      h('button.swatch-btn.acc-' + a, { 'aria-label': label, title: label, 'aria-pressed': String(a === (THEMES.some(t => t[0] === accent) ? accent : 'indigo')), onclick: async () => { await setSetting('accent', a); applyTheme(); } }))),
+        h('small.muted', 'Selected: ' + (THEMES.find(t => t[0] === accent) || THEMES[0])[1])),
+      'One calm colour for the whole app. “Sunset” is the multi-colour gradient look.')));
 
   // security
   el.append(sec('Security',

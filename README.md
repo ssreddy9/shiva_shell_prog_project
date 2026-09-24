@@ -1,4 +1,4 @@
-# Dinalekha — the story of your days
+# Dinalekha — the story of your day
 
 *Dinalekha* (दिनलेखा, “day-writing”, from Sanskrit *dina* “day” + *lekha* “writing”). A personal life-logging app for phone and laptop: a diary, a photo feed like Instagram, a travel journal, a writing studio for stories and film ideas, a learning and career tracker, a money tracker, and an encrypted vault for your ID copies and cards.
 
@@ -16,7 +16,7 @@ It was built from the *Shiva Weekly Desk Planner* and *12-week Learning Checklis
 | **Vault** | Passport, DL, SSN, visa/EAD, I-94, insurance, applications, cards and logins, with photo or PDF copies. **Encrypted with AES-256** using your passphrase. Warns you 90 days before a document expires |
 | **Schedule** | Edit your weekly planner. **Add to calendar** exports an `.ics` file (repeating events plus learning milestones) for Apple, Google or Outlook |
 | **Calendar / Search** | Month view with mood, photos and dots for each day. Full-text and `#tag` search |
-| **Settings** | Name, currency, light/dark theme, colour theme (Sunset, Ocean, Berry, Forest, Mango), passphrase, app lock, auto-lock, backup and import, storage |
+| **Settings** | Name, currency, light/dark theme, colour theme (Indigo, Teal, Rose, Violet, Emerald, Amber, Ocean blue, Slate, or the multi-colour Sunset gradient), passphrase, app lock, auto-lock, backup and import, storage |
 
 ## Privacy
 
