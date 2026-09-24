@@ -4,6 +4,9 @@ import { cryptoMeta, changePassphrase, setupPassphrase, lock, isUnlocked } from 
 import { exportBackup, importBackup } from '../backup.js';
 import { buildICS } from '../ics.js';
 import { applyTheme } from '../theme.js';
+import { isConfigured } from '../remote.js';
+import { currentUser, signOut, changePassword, replaceRecoveryKey, deleteAccount } from '../auth.js';
+import { syncNow, syncStatus, onSyncStatus } from '../sync.js';
 
 export const title = 'Settings';
 const FONTS = [
@@ -12,7 +15,7 @@ const FONTS = [
   ['bold', 'Bold', 'Bricolage Grotesque', '"Bricolage Grotesque", sans-serif', 800],
   ['system', 'Simple', 'Your device’s own font', 'system-ui, sans-serif', 800],
 ];
-export const APP_VERSION = 'v8';
+export const APP_VERSION = 'v9';
 
 const THEMES = [['indigo', 'Indigo'], ['teal', 'Teal'], ['rose', 'Rose'], ['violet', 'Violet'], ['emerald', 'Emerald'], ['amber', 'Amber'], ['ocean', 'Ocean blue'], ['slate', 'Slate'], ['sunset', 'Sunset (gradient)']];
 
@@ -25,6 +28,27 @@ export async function render(el) {
   el.append(h('div.page-head', h('h1', 'Settings')));
   const sec = (t, ...kids) => h('section.card.settings-sec', h('h2', t), ...kids);
   const row = (label, control, hint) => h('div.set-row', h('div', h('strong', label), hint ? h('p.muted.small', hint) : null), control);
+
+  const cloud = isConfigured() && currentUser();
+  // account
+  if (cloud) {
+    const stateText = h('span.muted.small');
+    const paint = st => {
+      stateText.textContent = st.state === 'syncing' ? 'Syncing…'
+        : st.state === 'offline' ? `Offline — ${st.pending || 0} change(s) will upload when you’re back online`
+        : st.state === 'error' ? 'Last sync failed: ' + st.error
+        : st.lastSync ? `Synced ${relTime(st.lastSync)}` + (st.pending ? ` · ${st.pending} waiting` : '') : 'Not synced yet';
+    };
+    paint(syncStatus());
+    const off = onSyncStatus(st => (stateText.isConnected ? paint(st) : off()));
+    el.append(sec('Account',
+      row('Signed in as', h('strong.acct-email', currentUser().email)),
+      row('Sync', h('button.btn', { onclick: () => syncNow() }, icon('trend', 16), 'Sync now'), stateText),
+      h('p.muted.small', 'Everything you write is encrypted on this device before it syncs, so only you can read it — not even the app owner.'),
+      row('Password', h('button.btn', { onclick: () => changePassword().catch(e => toast(e.message)) }, 'Change password')),
+      row('Recovery key', h('button.btn', { onclick: () => replaceRecoveryKey().catch(e => toast(e.message)) }, 'Create new key'), 'Unlocks your entries if you forget your password. Make a new one if you lost it.'),
+      row('Sign out', h('button.btn', { onclick: () => signOut().catch(e => toast(e.message)) }, 'Sign out'), 'Removes this device’s copy; everything stays safe in your account.')));
+  }
 
   // profile
   el.append(sec('Profile',
@@ -70,9 +94,9 @@ export async function render(el) {
 
   // backup
   const status = h('p.muted.small', lastBackup ? 'Last backup ' + relTime(lastBackup) : 'No backup yet.');
-  el.append(sec('Backup & sync between phone and laptop',
-    h('p', 'Everything is stored privately on each device. To keep your phone and laptop in sync, export a backup on one and import it on the other — imports merge (newer edits win, deletes carry over), so nothing is duplicated.'),
-    h('ol.small', h('li', 'On the device with the latest changes: Export backup.'), h('li', 'Move the file (AirDrop, iCloud Drive, Google Drive, email to yourself…).'), h('li', 'On the other device: Import backup and pick the file.')),
+  el.append(sec(cloud ? 'Backup file' : 'Backup & sync between phone and laptop',
+    h('p', cloud ? 'Your account already syncs across your devices. A backup file is an extra copy you keep yourself.' : 'Everything is stored privately on each device. To keep your phone and laptop in sync, export a backup on one and import it on the other — imports merge (newer edits win, deletes carry over), so nothing is duplicated.'),
+    cloud ? null : h('ol.small', h('li', 'On the device with the latest changes: Export backup.'), h('li', 'Move the file (AirDrop, iCloud Drive, Google Drive, email to yourself…).'), h('li', 'On the other device: Import backup and pick the file.')),
     h('div.btn-row',
       h('button.btn.primary', { onclick: async () => {
         toast('Preparing backup…');
@@ -122,7 +146,10 @@ export async function render(el) {
       h('li', h('strong', 'Laptop: '), 'Chrome or Edge → install icon in the address bar. On a Mac with Safari: File → Add to Dock.'))));
 
   // danger
-  el.append(sec('Danger zone',
+  if (cloud) el.append(sec('Danger zone',
+    row('Delete my account', h('button.btn.danger', { onclick: () => deleteAccount().catch(e => toast(e.message)) }, icon('trash', 16), 'Delete account'),
+      'Permanently deletes your account and everything in it, on every device.')));
+  else el.append(sec('Danger zone',
     row('Erase everything on this device', h('button.btn.danger', { onclick: async () => {
       if (!(await confirmDialog('Erase ALL data on this device — entries, photos, money, vault? Make a backup first. This cannot be undone.', { ok: 'Erase everything' }))) return;
       const typed = await formModal('Type ERASE to confirm', [{ name: 'c', label: 'Confirmation', required: true }], {});
@@ -131,5 +158,5 @@ export async function render(el) {
       location.reload();
     } }, icon('trash', 16), 'Erase'))));
 
-  el.append(h('p.muted.small.center', 'Dinalekha ' + APP_VERSION + ' · works offline · your data never leaves your devices unless you export it.'));
+  el.append(h('p.muted.small.center', 'Dinalekha ' + APP_VERSION + (cloud ? ' · works offline · end-to-end encrypted sync' : ' · works offline · your data never leaves your devices unless you export it.')));
 }

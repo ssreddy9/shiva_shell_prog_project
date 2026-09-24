@@ -3,11 +3,11 @@
 // Importing MERGES: newer edits win, deletions carry over — so you can move
 // the file back and forth between phone and laptop to keep them in sync.
 
-import { db, STORES, setSetting } from './db.js';
+import { db, STORES, setSetting, withBlob } from './db.js';
 import { toB64, fromB64, deriveKey, checkKey, reencryptRecords, currentKey, cryptoMeta } from './crypto.js';
 import { promptPassphrase } from './ui.js';
 
-async function ser(v) {
+export async function ser(v) {
   if (v instanceof Blob) return { $blob: toB64(new Uint8Array(await v.arrayBuffer())), type: v.type };
   if (v instanceof Uint8Array || v instanceof ArrayBuffer) return { $u8: toB64(v) };
   if (Array.isArray(v)) return Promise.all(v.map(ser));
@@ -18,7 +18,7 @@ async function ser(v) {
   }
   return v;
 }
-function deser(v) {
+export function deser(v) {
   if (Array.isArray(v)) return v.map(deser);
   if (v && typeof v === 'object') {
     if ('$blob' in v) return new Blob([fromB64(v.$blob)], { type: v.type });
@@ -36,7 +36,8 @@ export async function exportBackup() {
   for (const name of Object.keys(STORES)) {
     parts.push((firstStore ? '' : ',') + JSON.stringify(name) + ':[');
     firstStore = false;
-    const rows = await db.all(name);
+    let rows = await db.all(name);
+    if (name === 'media' || name === 'vaultfiles') rows = await Promise.all(rows.map(r => withBlob(name, r)));
     // serialize row by row so large photo libraries don't need one giant string
     for (let i = 0; i < rows.length; i++) parts.push((i ? ',' : '') + JSON.stringify(await ser(rows[i])));
     parts.push(']');

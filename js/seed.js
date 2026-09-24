@@ -89,14 +89,24 @@ const CAREER = [
 export const EXPENSE_CATS = ['Groceries', 'Dining out', 'Transport', 'Rent', 'Utilities', 'Phone & internet', 'Shopping', 'Health & gym', 'Education', 'Travel', 'Entertainment', 'Insurance', 'Subscriptions', 'Family / send home', 'Gifts', 'Other'];
 export const INCOME_CATS = ['Salary', 'Bonus', 'Freelance', 'Interest', 'Refund', 'Gift', 'Other'];
 
+// On-device mode (no accounts): the app is Shiva's, so start with the planner.
 export async function seedIfNeeded() {
   if (await getSetting('seeded')) return;
-  await db.bulkPut('schedule', SCHEDULE.map(b => ({ ...b, createdAt: Date.now(), updatedAt: 0 })));
-  await db.bulkPut('learning', LEARNING.map(l => ({ ...l, createdAt: Date.now(), updatedAt: 0 })));
-  await db.bulkPut('career', CAREER.map(c => ({ ...c, createdAt: Date.now(), updatedAt: 0 })));
-  await db.bulkPut('accounts', [{ id: 'acct-cash', name: 'Cash', type: 'Cash', opening: 0, createdAt: Date.now(), updatedAt: 0 }]);
+  await seedPlanner({ stamp: 0 });
+  await seedBasics({ stamp: 0 });
   await setSetting('name', 'Shiva');
   await setSetting('seeded', true);
+}
+
+// Sample planner: the weekly schedule, 12-week learning plan and career items
+// from the desk planner PDF. New account holders can pick it or start fresh.
+export async function seedPlanner({ stamp = Date.now() } = {}) {
+  await db.bulkPut('schedule', SCHEDULE.map(b => ({ ...b, createdAt: Date.now(), updatedAt: stamp })));
+  await db.bulkPut('learning', LEARNING.map(l => ({ ...l, createdAt: Date.now(), updatedAt: stamp })));
+  await db.bulkPut('career', CAREER.map(c => ({ ...c, createdAt: Date.now(), updatedAt: stamp })));
+}
+export async function seedBasics({ stamp = Date.now() } = {}) {
+  await db.bulkPut('accounts', [{ id: 'acct-cash', name: 'Cash', type: 'Cash', opening: 0, createdAt: Date.now(), updatedAt: stamp }]);
 }
 
 export async function resetSchedule() {

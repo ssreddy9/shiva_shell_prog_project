@@ -1,6 +1,9 @@
 import { onChange, getSetting } from './db.js';
 import { h, icon, clear, modal, loadCurrency } from './ui.js';
 import { seedIfNeeded, migrateHighlightsToPosts } from './seed.js';
+import { isConfigured } from './remote.js';
+import { startAccountMode } from './auth.js';
+import { onSyncStatus, syncStatus } from './sync.js';
 import { applyTheme } from './theme.js';
 import { cryptoMeta, unlock, isUnlocked, onLock, startAutoLock } from './crypto.js';
 import { editEntry, KINDS } from './kinds.js';
@@ -79,13 +82,30 @@ function quickAddSheet() {
   const m = modal('Log something', h('div.sheet-grid', items.map(([label, ic, fn]) => h('button.sheet-item', { onclick: () => { m.close(); fn(); } }, icon(ic, 22), h('span', label)))));
 }
 
+// Small cloud-sync indicator in the sidebar (cloud accounts only).
+function syncPill() {
+  const el = h('a.sync-pill', { href: '#/settings' });
+  const paint = st => {
+    const label = st.state === 'syncing' ? 'Syncing…'
+      : st.state === 'offline' ? `Offline${st.pending ? ` · ${st.pending} waiting` : ''}`
+      : st.state === 'error' ? 'Sync problem — tap for details'
+      : st.lastSync ? 'Synced' : 'Not synced yet';
+    el.className = 'sync-pill s-' + st.state;
+    el.replaceChildren(h('span.sync-dot'), label);
+  };
+  paint(syncStatus());
+  onSyncStatus(paint);
+  return el;
+}
+
 function shell() {
   const app = document.getElementById('app');
   clear(app);
   sideNav = h('nav.sidebar', { 'aria-label': 'Main' },
     h('a.brand', { href: '#/today' }, h('img.brand-logo', { src: 'icons/icon.svg', alt: '', width: 38, height: 38 }), h('span.brand-text', h('strong', 'Dinalekha', h('span.brand-te', { lang: 'te' }, 'దినలేఖ')), h('small', 'the story of your day'))),
     NAV.map(([k, ic, label]) => h('a.nav-link', { href: '#/' + k, 'data-nav': k }, icon(ic), h('span', label))),
-    h('button.btn.primary.side-add', { onclick: quickAddSheet }, icon('plus', 18), 'Log something'));
+    h('button.btn.primary.side-add', { onclick: quickAddSheet }, icon('plus', 18), 'Log something'),
+    isConfigured() ? syncPill() : null);
   tabNav = h('nav.tabbar', { 'aria-label': 'Main' }, TABBAR.map(([k, ic, label]) => h('a.tab', { href: '#/' + k, 'data-nav': k }, icon(ic, 22), h('span', label))));
   viewEl = h('div.view');
   app.append(sideNav, h('main.main', viewEl), tabNav,
@@ -115,7 +135,13 @@ async function lockScreen() {
 async function boot() {
   await applyTheme();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
-  await seedIfNeeded();
+  if (isConfigured()) {
+    // Cloud accounts: sign in, unlock the encryption key, first-time setup.
+    await startAccountMode();
+    await applyTheme(); // settings may have arrived from another device
+  } else {
+    await seedIfNeeded();
+  }
   await migrateHighlightsToPosts();
   await loadCurrency();
   navigator.storage?.persist?.().catch(() => {});
@@ -126,6 +152,7 @@ async function boot() {
 
   addEventListener('hashchange', () => renderView());
   addEventListener('rerender', scheduleRerender);
+  addEventListener('synced', async () => { await applyTheme(); await loadCurrency(); scheduleRerender(); });
   onChange(scheduleRerender);
   onLock(async () => {
     const full = await getSetting('lockApp', false);

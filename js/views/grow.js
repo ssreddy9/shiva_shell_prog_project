@@ -2,7 +2,7 @@ import { db } from '../db.js';
 import { h, icon, fmtDate, formModal, toast, segmented, empty, isoDate, addDays, weekStart, fmtHours, textBlock } from '../ui.js';
 import { editEntry, entryCard, ACTIVITY_TYPES } from '../kinds.js';
 import { learningWeek, weekStats } from '../stats.js';
-import { LEARNING_LINKS } from '../seed.js';
+import { LEARNING_LINKS, LEARNING } from '../seed.js';
 import { barChart } from '../charts.js';
 import { meter } from './today.js';
 
@@ -22,6 +22,14 @@ export async function render(el, [tab = 'learning']) {
 // ---------------- learning ----------------
 async function learning(el) {
   const weeks = (await db.all('learning')).sort((a, b) => a.week - b.week);
+  if (!weeks.length) {
+    el.append(empty('No learning plan yet. Start from the sample 12-week AWS Solutions Architect + Python plan and edit it as you go.',
+      h('button.btn.primary', { onclick: async () => {
+        await db.bulkPut('learning', LEARNING.map(l => ({ ...l, createdAt: Date.now(), updatedAt: Date.now() })));
+        toast('Learning plan added');
+      } }, icon('sprout', 18), 'Add the sample plan')));
+    return;
+  }
   const links = await db.byIndex('career', 'type', 'link');
   const lw = learningWeek();
   const doneWeeks = weeks.filter(w => w.done).length;
