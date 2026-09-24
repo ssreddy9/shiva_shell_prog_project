@@ -594,3 +594,5 @@ a.card:hover, button.card:hover { transform: translateY(-1px); box-shadow: 0 12p
 .toast { background: #1f1e26; color: #fff; }
 .toast .link { color: #ffd0e6; }
 .modal-head { border-bottom: 3px solid; border-image: var(--grad) 1; }
+
+.brand-logo, .lock-logo { border-radius: 24%; box-shadow: 0 4px 12px rgba(255, 107, 87, .3); flex: none; }
