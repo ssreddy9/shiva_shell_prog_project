@@ -18,21 +18,35 @@ It was built from the *Shiva Weekly Desk Planner* and *12-week Learning Checklis
 | **Calendar / Search** | Month view with mood, photos and dots for each day. Full-text and `#tag` search |
 | **Settings** | Name, currency, light/dark theme, colour theme (Indigo, Teal, Rose, Violet, Emerald, Amber, Ocean blue, Slate, or the multi-colour Sunset gradient), passphrase, app lock, auto-lock, backup and import, storage |
 
+## Two modes
+
+| | On-device mode (default) | Accounts mode |
+|---|---|---|
+| Turned on by | nothing to set up | connecting a Supabase project ([setup guide](docs/SETUP-ACCOUNTS.md)) |
+| Login | none | email + password for each person |
+| Where data lives | only in this browser (IndexedDB) | on each device **and** encrypted in the cloud |
+| Phone ↔ laptop | export/import a backup file | automatic sync |
+| Friends | share the link; each device is separate | everyone gets their own private account |
+
 ## Privacy
 
-- **No server and no account.** Everything is stored in your browser's database on each device (IndexedDB). Nothing is uploaded.
-- **Vault items** (numbers, notes and scans) are encrypted with AES-GCM 256. The key comes from your passphrase (PBKDF2-SHA256, 310k iterations). The passphrase is never stored. **If you forget it, the vault cannot be recovered.**
-- Optionally, **Settings → "Ask for passphrase when the app opens"** puts the whole app behind a lock screen. Only the Vault is encrypted. Your diary, photos and money data are protected by your device lock and that lock screen.
+- **Accounts mode is end-to-end encrypted.** Each person has a random 256-bit data key, and every entry, photo and scan is encrypted with it (AES-256-GCM) *before* upload. The server stores the key only in wrapped form: once with the person's password (PBKDF2-SHA256, 310k iterations) and once with their **recovery key**. Nobody else can read the data, not even the project owner. Row-level security also keeps each person's rows and files private to them.
+- **Password reset** works by email. After a reset, the recovery key is needed to unlock existing entries. Lose both and the old entries are gone for good; the account can start over empty.
+- **On-device mode** stores everything only in the browser. Nothing is uploaded.
+- **Vault items** (numbers, notes, scans) are also encrypted with a separate vault passphrase (AES-256-GCM, PBKDF2). **If you forget it, the vault cannot be recovered.**
+- Optionally, **Settings → "Ask for passphrase when the app opens"** adds a lock screen on this device.
 
 ## Keeping your phone and laptop in sync
 
-Each device keeps its own copy. To move changes across:
+**Accounts mode:** automatic. Sign in on each device. The app works offline and syncs when back online. If two devices edit the same item, the most recent edit wins. Photos from other devices download the first time you view them.
+
+**On-device mode:** each device keeps its own copy. To move changes across:
 
 1. On the device with the newest changes: **Settings → Export backup** (on a phone this opens the share sheet).
 2. Send the file to the other device (AirDrop, iCloud Drive, Google Drive, email to yourself).
 3. On the other device: **Settings → Import backup**.
 
-Imports **merge**: newer edits win, deletions carry over, and importing the same file twice changes nothing. Vault items stay encrypted inside the backup file. If both devices have different vault passphrases, the import asks for the backup's passphrase and re-encrypts with this device's. Everything else in the backup is not encrypted, so keep backup files somewhere private. Back up regularly; the Today page reminds you after 7 days.
+Imports **merge**: newer edits win, deletions carry over, and importing the same file twice changes nothing. Vault items stay encrypted inside the backup file; everything else in the backup is not, so keep backup files somewhere private.
 
 ## Put it online and install it
 
@@ -57,13 +71,35 @@ Installing matters. Browsers can clear storage for websites you haven't opened i
 
 ```
 index.html, manifest.webmanifest, sw.js   app shell, install metadata, offline cache
-css/app.css                               theme (planner colours, light and dark)
+css/app.css                               theme, colour themes, font styles
 js/app.js                                 router, navigation, lock screen
 js/db.js  js/crypto.js  js/backup.js      storage, vault encryption, backup/merge
-js/seed.js                                your planner and learning checklist data
+js/config.js                              Supabase URL + anon key (empty = on-device mode)
+js/remote.js  js/auth.js  js/account.js   backend connection, login screens, end-to-end keys
+js/sync.js                                encrypted sync engine (outbox, push/pull, photos)
+js/seed.js                                sample planner and learning checklist
 js/kinds.js  js/stats.js  js/charts.js    entry types, weekly goals, small SVG charts
 js/views/*.js                             one file per screen
+js/vendor/supabase.js                     supabase-js 2 (MIT), loaded only in accounts mode
 fonts/                                    self-hosted open-licence fonts (see fonts/README.md)
+supabase/schema.sql                       database tables, row-level security, storage bucket
+docs/SETUP-ACCOUNTS.md                    turning on accounts; custom domain
+tests/                                    end-to-end test of accounts against a local mock backend
 ```
 
 After changing any file, bump `VERSION` in `sw.js` so installed copies pick up the update.
+
+## Tests
+
+```
+node tests/accounts.test.mjs
+```
+
+This runs the app in Chromium (Playwright) against a local stand-in for Supabase. It covers:
+- sign-up, recovery key, onboarding;
+- two-device sync, including photos, deletes and the vault;
+- a check that the server only holds ciphertext;
+- password reset with the recovery key;
+- sign-out;
+- moving existing on-device data into an account;
+- isolation between accounts.

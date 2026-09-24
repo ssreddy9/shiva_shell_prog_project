@@ -137,6 +137,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--mesh), var(--bg); background-attachment: fixed; color: var(--ink); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 a { color: var(--accent); text-decoration: none; }
@@ -648,3 +649,30 @@ a.card:hover, button.card:hover { transform: translateY(-1px); box-shadow: 0 12p
 .font-choice > span:last-child { display: grid; line-height: 1.2; }
 .font-choice small { font-size: .72rem; }
 .font-sample { font-size: 1.7rem; line-height: 1; color: var(--accent); width: 42px; text-align: center; flex: none; }
+
+/* ---------- accounts ---------- */
+.auth-card { width: min(440px, 100%); text-align: left; justify-items: stretch; }
+.auth-card > .lock-logo, .auth-card > h1, .auth-card > p.muted { justify-self: center; text-align: center; }
+.auth-card h1 { margin: 4px 0 0; }
+.auth-tabs { justify-self: center; }
+.auth-msg:empty { display: none; }
+.auth-msg { background: var(--accent-soft); color: var(--ink); padding: 10px 12px; border-radius: 12px; font-size: .92rem; }
+.auth-links { display: flex; justify-content: center; margin-top: 8px; }
+.auth-foot { display: flex; gap: 6px; align-items: flex-start; text-align: left; margin-top: 6px; }
+.auth-foot svg { flex: none; margin-top: 3px; }
+.auth-lost { font-size: .9rem; color: var(--muted); }
+.auth-lost summary { cursor: pointer; }
+.recovery-code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 1.05rem; font-weight: 700; letter-spacing: .04em; text-align: center; padding: 14px; border-radius: 12px; background: var(--surface-2); border: 1px dashed var(--accent); word-spacing: .2em; overflow-wrap: anywhere; user-select: all; }
+.recovery-modal { display: grid; gap: 12px; }
+.center-row { justify-content: center; }
+.choices { display: grid; gap: 8px; margin: 6px 0 10px; }
+.choice { display: grid; gap: 2px; text-align: left; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; color: var(--ink); }
+.choice[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); background: color-mix(in srgb, var(--accent) 5%, var(--surface)); }
+.sync-pill { display: flex; align-items: center; gap: 8px; margin-top: auto; padding: 8px 12px; border-radius: 12px; font-size: .82rem; font-weight: 600; color: var(--muted); }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); flex: none; }
+.sync-pill.s-syncing .sync-dot { background: var(--accent); animation: pulse 1s infinite alternate; }
+.sync-pill.s-offline .sync-dot, .sync-pill.s-idle .sync-dot { background: var(--muted); }
+.sync-pill.s-error { color: var(--danger); }
+.sync-pill.s-error .sync-dot { background: var(--danger); }
+@keyframes pulse { to { opacity: .3; } }
+.acct-email { overflow-wrap: anywhere; }

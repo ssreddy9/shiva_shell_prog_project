@@ -1,7 +1,7 @@
 // Offline support. Network-first: when online you always get the latest
 // version (revalidated past the browser's HTTP cache); the cached copy is
 // only used when offline.
-const VERSION = 'dinalekha-v8';
+const VERSION = 'dinalekha-v9';
 const SHELL = [
   './',
   './index.html',
@@ -15,6 +15,11 @@ const SHELL = [
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
   './js/app.js',
+  './js/sync.js',
+  './js/remote.js',
+  './js/config.js',
+  './js/auth.js',
+  './js/account.js',
   './js/backup.js',
   './js/charts.js',
   './js/crypto.js',
@@ -25,6 +30,7 @@ const SHELL = [
   './js/stats.js',
   './js/theme.js',
   './js/ui.js',
+  './js/vendor/supabase.js',
   './js/views/calendar.js',
   './js/views/entry.js',
   './js/views/feed.js',

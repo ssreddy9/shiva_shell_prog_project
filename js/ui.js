@@ -1,6 +1,6 @@
 // DOM helpers, dialogs, forms, formatting and photo handling.
 
-import { db, uid, getSetting } from './db.js';
+import { db, uid, getSetting, withBlob } from './db.js';
 
 // h('div.card.big#id', {onclick}, child, [children], 'text')
 export function h(sel, attrs, ...kids) {
@@ -192,8 +192,8 @@ export function promptPassphrase(title, { confirm = false, hint = '' } = {}) {
 const urlCache = new Map();
 export async function mediaURL(id) {
   if (urlCache.has(id)) return urlCache.get(id);
-  const m = await db.get('media', id);
-  if (!m) return null;
+  const m = await withBlob('media', await db.get('media', id));
+  if (!m || !m.blob) return null;
   const url = URL.createObjectURL(m.blob);
   urlCache.set(id, url);
   return url;
