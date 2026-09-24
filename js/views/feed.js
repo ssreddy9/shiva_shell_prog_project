@@ -1,5 +1,5 @@
 import { db, getSetting, setSetting } from '../db.js';
-import { h, icon, mimg, fmtDate, tagChips, empty, segmented } from '../ui.js';
+import { h, icon, mimg, fmtDate, tagChips, empty, segmented, MOODS, MOOD_WORDS } from '../ui.js';
 import { editEntry, KINDS, entryTitle } from '../kinds.js';
 
 export const title = 'Feed';
@@ -21,23 +21,26 @@ export function carousel(ids) {
 
 export async function render(el) {
   const mode = await getSetting('feedMode', 'feed');
-  const entries = (await db.all('entries')).filter(e => e.photos && e.photos.length)
+  const all = (await db.all('entries')).filter(e => e.kind === 'moment' || (e.photos && e.photos.length));
+  const entries = all
     .sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.createdAt - a.createdAt);
 
   el.append(h('div.page-head',
-    h('div', h('h1', 'Feed'), h('p.muted', 'Every photo you have logged — moments, trips, workouts and diary pages.')),
+    h('div', h('h1', 'Feed'), h('p.muted', 'Your posts, plus every photo from trips, workouts and diary pages.')),
     h('div.head-actions',
       segmented([['feed', 'Posts'], ['grid', 'Grid']], mode, async m => { await setSetting('feedMode', m); }),
-      h('button.btn.primary', { onclick: () => editEntry('moment') }, icon('camera', 18), 'New moment'))));
+      h('button.btn.primary', { onclick: () => editEntry('moment') }, icon('plus', 18), 'New post'))));
 
   if (!entries.length) {
-    el.append(empty('No photos yet. Post your first moment — a view, a meal, a sunset on the hike.',
-      h('button.btn.primary', { onclick: () => editEntry('moment') }, icon('camera', 18), 'Post a moment')));
+    el.append(empty('Nothing posted yet. Write in “How’s today?” on the Today page and tap Post — it shows up here.',
+      h('button.btn.primary', { onclick: () => editEntry('moment') }, icon('plus', 18), 'Write a post')));
     return;
   }
 
   if (mode === 'grid') {
-    el.append(h('div.photo-grid', entries.flatMap(e => e.photos.map((p, i) =>
+    const withPhotos = entries.filter(e => e.photos && e.photos.length);
+    if (!withPhotos.length) { el.append(empty('No photos yet — add one to a post.')); return; }
+    el.append(h('div.photo-grid', withPhotos.flatMap(e => e.photos.map((p, i) =>
       h('a.photo-cell', { href: '#/entry/' + e.id, 'aria-label': entryTitle(e) }, mimg(p), i === 0 && e.photos.length > 1 ? h('span.badge', icon('grid', 12)) : null)))));
     return;
   }
@@ -49,10 +52,11 @@ export async function render(el) {
       h('header.post-head',
         h('span.kind-chip.k-' + e.kind, icon(k.icon, 14), k.label),
         h('span.muted', fmtDate(e.date)),
+        e.mood ? h('span', { title: MOOD_WORDS[e.mood - 1] }, MOODS[e.mood - 1]) : null,
         e.location ? h('span.muted', icon('pin', 12), e.location) : null,
         h('a.icon-btn.post-open', { href: '#/entry/' + e.id, 'aria-label': 'Open' }, icon('more'))),
-      carousel(e.photos),
-      h('div.post-body',
+      e.photos && e.photos.length ? carousel(e.photos) : null,
+      h('div.post-body' + (e.photos && e.photos.length ? '' : '.text-only'),
         e.title ? h('h3', e.title) : null,
         e.body ? h('p', e.body.length > 400 ? e.body.slice(0, 400) + '…' : e.body) : null,
         tagChips(e.tags))));

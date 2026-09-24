@@ -1,6 +1,6 @@
 import { onChange, getSetting } from './db.js';
 import { h, icon, clear, modal, loadCurrency } from './ui.js';
-import { seedIfNeeded } from './seed.js';
+import { seedIfNeeded, migrateHighlightsToPosts } from './seed.js';
 import { applyTheme } from './theme.js';
 import { cryptoMeta, unlock, isUnlocked, onLock, startAutoLock } from './crypto.js';
 import { editEntry, KINDS } from './kinds.js';
@@ -116,6 +116,7 @@ async function boot() {
   await applyTheme();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
   await seedIfNeeded();
+  await migrateHighlightsToPosts();
   await loadCurrency();
   navigator.storage?.persist?.().catch(() => {});
 

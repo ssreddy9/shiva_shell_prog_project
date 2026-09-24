@@ -103,3 +103,16 @@ export async function resetSchedule() {
   await db.clear('schedule');
   await db.bulkPut('schedule', SCHEDULE.map(b => ({ ...b, createdAt: Date.now(), updatedAt: Date.now() })));
 }
+
+// v6: "How's today?" became a post composer. Move any notes saved the old way
+// (day.highlight) into the Feed as posts, once.
+export async function migrateHighlightsToPosts() {
+  if (await getSetting('highlightsMigrated')) return;
+  for (const day of await db.all('days')) {
+    if (!day.highlight) continue;
+    await db.put('entries', { kind: 'moment', date: day.date, body: day.highlight, mood: day.mood || null, photos: [], tags: [] }, { silent: true });
+    delete day.highlight;
+    await db.put('days', day, { silent: true });
+  }
+  await setSetting('highlightsMigrated', true, { silent: true });
+}
