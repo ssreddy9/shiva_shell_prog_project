@@ -1,5 +1,5 @@
 import { onChange, getSetting } from './db.js';
-import { h, icon, clear, catSvg, modal, loadCurrency } from './ui.js';
+import { h, icon, clear, modal, loadCurrency } from './ui.js';
 import { seedIfNeeded } from './seed.js';
 import { applyTheme } from './theme.js';
 import { cryptoMeta, unlock, isUnlocked, onLock, startAutoLock } from './crypto.js';
@@ -83,7 +83,7 @@ function shell() {
   const app = document.getElementById('app');
   clear(app);
   sideNav = h('nav.sidebar', { 'aria-label': 'Main' },
-    h('a.brand', { href: '#/today' }, catSvg(34), h('span.brand-text', h('strong', 'Dinalekha'), h('small', 'the story of your day'))),
+    h('a.brand', { href: '#/today' }, h('img.brand-logo', { src: 'icons/icon.svg', alt: '', width: 38, height: 38 }), h('span.brand-text', h('strong', 'Dinalekha'), h('small', 'the story of your day'))),
     NAV.map(([k, ic, label]) => h('a.nav-link', { href: '#/' + k, 'data-nav': k }, icon(ic), h('span', label))),
     h('button.btn.primary.side-add', { onclick: quickAddSheet }, icon('plus', 18), 'Log something'));
   tabNav = h('nav.tabbar', { 'aria-label': 'Main' }, TABBAR.map(([k, ic, label]) => h('a.tab', { href: '#/' + k, 'data-nav': k }, icon(ic, 22), h('span', label))));
@@ -107,7 +107,7 @@ async function lockScreen() {
       if (await unlock(pass.value)) { appLocked = false; shell(); renderView(); }
       else { err.textContent = 'Wrong passphrase.'; pass.select(); }
     } },
-      catSvg(72), h('h1', name ? `Hi ${name}` : 'Dinalekha'), h('p.muted', 'Enter your passphrase to open your journal.'),
+      h('img.lock-logo', { src: 'icons/icon.svg', alt: '', width: 76, height: 76 }), h('h1', name ? `Hi ${name}` : 'Dinalekha'), h('p.muted', 'Enter your passphrase to open your journal.'),
       pass, h('button.btn.primary.wide', { type: 'submit' }, 'Unlock'), err)));
   setTimeout(() => pass.focus(), 50);
 }
