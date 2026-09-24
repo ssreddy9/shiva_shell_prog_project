@@ -136,7 +136,20 @@ async function boot() {
   startAutoLock(() => getSetting('autoLock', 5));
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW registration failed', err));
+    // updateViaCache 'none' + regular update checks: new versions are picked up
+    // as soon as they are published, and the page reloads once to show them.
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+      const check = () => reg.update().catch(() => {});
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+      setInterval(check, 30 * 60000);
+    }).catch(err => console.warn('SW registration failed', err));
   }
 }
 
