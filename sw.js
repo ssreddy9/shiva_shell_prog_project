@@ -1,14 +1,15 @@
 // Offline support. Network-first: when online you always get the latest
 // version (revalidated past the browser's HTTP cache); the cached copy is
 // only used when offline.
-const VERSION = 'dinalekha-v7';
+const VERSION = 'dinalekha-v8';
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './css/app.css',
-  './fonts/NTR.woff2',
-  './fonts/Suguna.woff2',
+  './fonts/plus-jakarta-sans.woff2',
+  './fonts/instrument-serif.woff2',
+  './fonts/instrument-serif-italic.woff2',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
