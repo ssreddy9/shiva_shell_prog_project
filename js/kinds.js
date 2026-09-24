@@ -21,12 +21,13 @@ export const KINDS = {
     ],
   },
   moment: {
-    label: 'Moment', plural: 'Moments', icon: 'camera',
+    label: 'Post', plural: 'Posts', icon: 'camera',
     fields: [
-      { name: 'photos', label: 'Photos', type: 'photos', required: true },
-      { name: 'body', label: 'Caption', type: 'textarea', rows: 3 },
+      { name: 'body', label: 'What’s on your mind?', type: 'textarea', rows: 4 },
+      { name: 'photos', label: 'Photos', type: 'photos' },
       { name: 'location', label: 'Place', half: true, placeholder: 'e.g. Red Rocks' },
       { name: 'date', label: 'Date', type: 'date', required: true, half: true },
+      { name: 'mood', label: 'Mood', type: 'mood' },
       { name: 'tags', label: 'Tags', type: 'tags' },
     ],
   },
@@ -109,6 +110,7 @@ export async function editEntry(kind, existing = null, preset = {}) {
     onDelete: existing ? async () => { await db.del('entries', existing.id); toast('Deleted'); } : null,
   });
   if (!out) return null;
+  if (kind === 'moment' && !(out.body || '').trim() && !(out.photos || []).length) { toast('Write something or add a photo'); return null; }
   out.kind = kind;
   if (!out.date) out.date = isoDate();
   const saved = await db.put('entries', out);

@@ -1,5 +1,5 @@
 import { db, getSetting } from '../db.js';
-import { h, icon, isoDate, fmtLongDate, fmtTime, fmtDate, minutesOf, MOODS, MOOD_WORDS, fmtHours, catSvg, toast, parseDate } from '../ui.js';
+import { h, icon, isoDate, fmtLongDate, fmtTime, fmtDate, minutesOf, MOODS, MOOD_WORDS, fmtHours, catSvg, toast, parseDate, mimg, filePicker, saveImage } from '../ui.js';
 import { editEntry, entryCard, KINDS } from '../kinds.js';
 import { weekStats, learningWeek, loggingStreak } from '../stats.js';
 import { ANCHORS, LEARNING_START } from '../seed.js';
@@ -49,7 +49,7 @@ export async function render(el) {
 
   // ---- quick add
   const quick = [
-    ['diary', 'Diary'], ['moment', 'Moment'], ['idea', 'Idea'], ['quote', 'Quote'], ['activity', 'Activity'], ['story', 'Story'], ['journey', 'Journey'],
+    ['diary', 'Diary'], ['moment', 'Post'], ['idea', 'Idea'], ['quote', 'Quote'], ['activity', 'Activity'], ['story', 'Story'], ['journey', 'Journey'],
   ];
   el.append(h('div.quick-row',
     quick.map(([k, label]) => h('button.quick', { onclick: () => editEntry(k) }, icon(KINDS[k].icon, 18), label)),
@@ -89,39 +89,58 @@ export async function render(el) {
     planList,
     h('details.anchors', h('summary', 'Fixed anchors'), h('ul', ANCHORS.map(a => h('li', a))))));
 
-  // ---- mood & highlight
-  // Saved without re-rendering the page, so text being typed is never lost.
+  // ---- "How's today?" composer: write, tap Post, and it goes to the Feed.
+  // Unposted text is kept as a draft on this device so nothing is lost.
   const d = day || { date: today };
-  const hl = h('textarea', { rows: 3, placeholder: 'One line about today — a highlight, a thought, a thank-you…', 'aria-label': 'Note about today' });
-  hl.value = d.highlight || '';
-  const status = h('span.save-status.muted.small', d.highlight ? 'Saved' : '');
-  const saveDay = async (announce = false) => {
-    d.highlight = hl.value.trim();
-    await db.put('days', d, { silent: true });
-    status.textContent = 'Saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    if (announce) toast("Saved to today — see it any time in Calendar");
+  const DRAFT = 'dinalekha-draft';
+  const readDraft = () => { try { return JSON.parse(localStorage.getItem(DRAFT)) || {}; } catch { return {}; } };
+  const writeDraft = v => { try { localStorage.setItem(DRAFT, JSON.stringify(v)); } catch { /* storage unavailable */ } };
+  const draft = readDraft();
+  let photos = Array.isArray(draft.photos) ? draft.photos : [];
+  const txt = h('textarea', { rows: 3, placeholder: 'What’s on your mind today? A highlight, a thought, a thank-you…', 'aria-label': 'Write a post about today' });
+  txt.value = draft.text || '';
+  const saveDraft = () => writeDraft({ text: txt.value, photos });
+  txt.addEventListener('input', saveDraft);
+  const thumbs = h('div.thumb-grid.composer-thumbs');
+  const paintThumbs = () => {
+    thumbs.replaceChildren(...photos.map((mid, i) => h('div.thumb', mimg(mid),
+      h('button.thumb-x', { type: 'button', 'aria-label': 'Remove photo', onclick: () => { photos.splice(i, 1); saveDraft(); paintThumbs(); } }, icon('x', 14)))));
+    thumbs.hidden = !photos.length;
   };
-  let typing;
-  hl.addEventListener('input', () => { status.textContent = 'Saving…'; clearTimeout(typing); typing = setTimeout(() => saveDay(), 800); });
-  hl.addEventListener('blur', () => { clearTimeout(typing); if (hl.value.trim() !== (d.highlight || '')) saveDay(); });
+  paintThumbs();
   const moodBtns = MOODS.map((m, i) => h('button.mood-btn', {
     'aria-label': MOOD_WORDS[i], 'aria-pressed': String(d.mood === i + 1), title: MOOD_WORDS[i],
     onclick: async () => {
       d.mood = d.mood === i + 1 ? null : i + 1;
       moodBtns.forEach((b, j) => b.setAttribute('aria-pressed', String(d.mood === j + 1)));
-      await saveDay();
+      await db.put('days', d, { silent: true });
     },
   }, m));
-  grid.append(h('section.card',
+  const post = async () => {
+    const body = txt.value.trim();
+    if (!body && !photos.length) { toast('Write something or add a photo first'); txt.focus(); return; }
+    const saved = await db.put('entries', { kind: 'moment', date: today, body, photos: [...photos], mood: d.mood || null, tags: [] }, { silent: true });
+    txt.value = ''; photos = []; writeDraft({});
+    toast('Posted to your feed', { label: 'View', fn: () => { location.hash = '#/entry/' + saved.id; } });
+    dispatchEvent(new Event('rerender'));
+  };
+  grid.append(h('section.card.composer',
     h('div.card-head', h('h2', icon('heart', 18), "How's today?")),
-    h('div.mood-row', moodBtns), hl,
+    h('div.mood-row', moodBtns), txt, thumbs,
     h('div.save-row',
-      h('button.btn.primary.small', { onclick: () => { clearTimeout(typing); saveDay(true); } }, icon('check', 16), 'Save'),
       h('button.btn.ghost.small', { onclick: async () => {
-        clearTimeout(typing); await saveDay();
-        editEntry('diary', null, { body: hl.value.trim(), mood: d.mood || null });
-      } }, icon('book', 16), 'Turn into diary entry'),
-      status)));
+        const files = await filePicker({ accept: 'image/*', multiple: true });
+        for (const f of files) photos.push(await saveImage(f));
+        saveDraft(); paintThumbs();
+      } }, icon('camera', 16), 'Photo'),
+      h('button.btn.ghost.small', { onclick: () => {
+        const body = txt.value.trim();
+        editEntry('diary', null, { body, mood: d.mood || null, photos: [...photos] }).then(saved => {
+          if (saved) { txt.value = ''; photos = []; writeDraft({}); paintThumbs(); }
+        });
+      } }, icon('book', 16), 'As diary'),
+      h('span.spacer'),
+      h('button.btn.primary', { onclick: post }, icon('up', 16), 'Post'))));
 
   // ---- week goals
   const g = stats.goals;

@@ -596,3 +596,6 @@ a.card:hover, button.card:hover { transform: translateY(-1px); box-shadow: 0 12p
 .modal-head { border-bottom: 3px solid; border-image: var(--grad) 1; }
 
 .brand-logo, .lock-logo { border-radius: 24%; box-shadow: 0 4px 12px rgba(255, 107, 87, .3); flex: none; }
+.post-body.text-only p { font-size: 1.12rem; line-height: 1.6; }
+.composer textarea { margin-bottom: 4px; }
+.composer-thumbs { margin-top: 8px; }
