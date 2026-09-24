@@ -11,6 +11,7 @@ let impl = null;
 const injected = () => (typeof window !== 'undefined' && window.__DINALEKHA_REMOTE__) || null;
 
 export function isConfigured() {
+  if (typeof window !== 'undefined' && window.__DINALEKHA_LOCAL__) return false; // tests: simulate on-device mode
   return !!injected() || !!(SUPABASE_URL && SUPABASE_ANON_KEY);
 }
 

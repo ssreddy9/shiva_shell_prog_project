@@ -23,7 +23,7 @@
 :root {
   color-scheme: light;
   /* accent: light & dark variants, swapped per theme below */
-  --acc-l: #4f46e5; --acc-d: #a5b4fc;
+  --acc-l: #0b7f7b; --acc-d: #5fd6cc; /* Lagoon (default): fresh sea-teal, pairs with the coral icon */
   --accent: var(--acc-l);
   --bg: color-mix(in srgb, var(--accent) 4%, #fbfaf8);
   --surface: #ffffff;
@@ -80,6 +80,7 @@
   --font-ui: "Anek Telugu", var(--sys); --font-display: "Anek Telugu", var(--sys);
   --display-weight: 800; --display-tracking: -.01em; --display-scale: 1;
 }
+:root[data-accent="indigo"]  { --acc-l: #4f46e5; --acc-d: #a5b4fc; }
 :root[data-accent="teal"]    { --acc-l: #0f766e; --acc-d: #5eead4; }
 :root[data-accent="rose"]    { --acc-l: #be123c; --acc-d: #fda4af; }
 :root[data-accent="violet"]  { --acc-l: #6d28d9; --acc-d: #c4b5fd; }
@@ -569,7 +570,7 @@ ul.plain { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
 .swatches { display: flex; gap: 8px; }
 .swatch-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--line); cursor: pointer; }
 .swatch-btn[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
-.acc-indigo { background: #4f46e5; } .acc-teal { background: #0f766e; } .acc-rose { background: #be123c; } .acc-violet { background: #6d28d9; }
+.acc-lagoon { background: #0b7f7b; } .acc-indigo { background: #4f46e5; } .acc-teal { background: #0f766e; } .acc-rose { background: #be123c; } .acc-violet { background: #6d28d9; }
 .acc-emerald { background: #047857; } .acc-amber { background: #b45309; } .acc-ocean { background: #0369a1; } .acc-slate { background: #334155; }
 .acc-sunset { background: linear-gradient(120deg, #7c3aed, #ec4899, #f97316); }
 .swatches { flex-wrap: wrap; }
@@ -634,7 +635,12 @@ a.card:hover, button.card:hover { transform: translateY(-1px); box-shadow: 0 12p
 .brand-te { font-family: "Anek Telugu", var(--sys); font-weight: 600; font-size: .95rem; color: var(--accent); margin-left: 6px; -webkit-text-fill-color: var(--accent); }
 .brand-text small { font-size: .68rem; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
 .sidebar { background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-.lockscreen { background: var(--mesh), var(--bg); }
+.lockscreen {
+  background:
+    radial-gradient(520px 420px at 12% 8%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+    radial-gradient(480px 420px at 92% 96%, color-mix(in srgb, #ff7a5c 14%, transparent), transparent 70%),
+    var(--bg);
+}
 .toast { background: #1f1e26; color: #fff; }
 .toast .link { color: #ffd0e6; }
 .modal-head { border-bottom: 3px solid; border-image: var(--grad) 1; }

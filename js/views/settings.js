@@ -15,13 +15,13 @@ const FONTS = [
   ['bold', 'Bold', 'Bricolage Grotesque', '"Bricolage Grotesque", sans-serif', 800],
   ['system', 'Simple', 'Your device’s own font', 'system-ui, sans-serif', 800],
 ];
-export const APP_VERSION = 'v10';
+export const APP_VERSION = 'v11';
 
-const THEMES = [['indigo', 'Indigo'], ['teal', 'Teal'], ['rose', 'Rose'], ['violet', 'Violet'], ['emerald', 'Emerald'], ['amber', 'Amber'], ['ocean', 'Ocean blue'], ['slate', 'Slate'], ['sunset', 'Sunset (gradient)']];
+const THEMES = [['lagoon', 'Lagoon'], ['indigo', 'Indigo'], ['teal', 'Teal'], ['rose', 'Rose'], ['violet', 'Violet'], ['emerald', 'Emerald'], ['amber', 'Amber'], ['ocean', 'Ocean blue'], ['slate', 'Slate'], ['sunset', 'Sunset (gradient)']];
 
 export async function render(el) {
   const [name, currency, theme, accent, lockApp, autoLock, lastBackup, meta] = await Promise.all([
-    getSetting('name', ''), getSetting('currency', 'USD'), getSetting('theme', 'auto'), getSetting('accent', 'indigo'),
+    getSetting('name', ''), getSetting('currency', 'USD'), getSetting('theme', 'auto'), getSetting('accent', 'lagoon'),
     getSetting('lockApp', false), getSetting('autoLock', 5), getSetting('lastBackup', 0), cryptoMeta()]);
   const fontStyle = await getSetting('fontStyle', 'modern');
 
@@ -61,7 +61,7 @@ export async function render(el) {
     row('Theme', h('select', { onchange: async e => { await setSetting('theme', e.target.value); applyTheme(); } },
       [['auto', 'Match device'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => h('option', { value: v, selected: v === theme }, l)))),
     row('Colour theme', h('div.swatch-wrap', h('div.swatches', THEMES.map(([a, label]) =>
-      h('button.swatch-btn.acc-' + a, { 'aria-label': label, title: label, 'aria-pressed': String(a === (THEMES.some(t => t[0] === accent) ? accent : 'indigo')), onclick: async () => { await setSetting('accent', a); applyTheme(); } }))),
+      h('button.swatch-btn.acc-' + a, { 'aria-label': label, title: label, 'aria-pressed': String(a === (THEMES.some(t => t[0] === accent) ? accent : 'lagoon')), onclick: async () => { await setSetting('accent', a); applyTheme(); } }))),
         h('small.muted', 'Selected: ' + (THEMES.find(t => t[0] === accent) || THEMES[0])[1])),
       'One calm colour for the whole app. “Sunset” is the multi-colour gradient look.'),
     row('Font style', h('div.font-choices', FONTS.map(([v, label, desc, family, weight]) =>

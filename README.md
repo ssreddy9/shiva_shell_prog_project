@@ -16,7 +16,7 @@ It was built from the *Shiva Weekly Desk Planner* and *12-week Learning Checklis
 | **Vault** | Passport, DL, SSN, visa/EAD, I-94, insurance, applications, cards and logins, with photo or PDF copies. **Encrypted with AES-256** using your passphrase. Warns you 90 days before a document expires |
 | **Schedule** | Edit your weekly planner. **Add to calendar** exports an `.ics` file (repeating events plus learning milestones) for Apple, Google or Outlook |
 | **Calendar / Search** | Month view with mood, photos and dots for each day. Full-text and `#tag` search |
-| **Settings** | Name, currency, light/dark theme, colour theme (Indigo, Teal, Rose, Violet, Emerald, Amber, Ocean blue, Slate, or the multi-colour Sunset gradient), passphrase, app lock, auto-lock, backup and import, storage |
+| **Settings** | Name, currency, light/dark theme, colour theme (Lagoon, Indigo, Teal, Rose, Violet, Emerald, Amber, Ocean blue, Slate, or the multi-colour Sunset gradient), passphrase, app lock, auto-lock, backup and import, storage |
 
 ## Two modes
 
