@@ -1,5 +1,5 @@
 // Offline support: cache the app shell, serve it cache-first, refresh in the background.
-const VERSION = 'dinalekha-v2';
+const VERSION = 'dinalekha-v3';
 const SHELL = [
   './',
   './index.html',
