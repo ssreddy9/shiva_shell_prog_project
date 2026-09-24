@@ -39,7 +39,7 @@ export async function render(el) {
     h('div.head-actions',
       h('button.btn', { onclick: async () => {
         const learning = await db.all('learning');
-        download('lifelog-week.ics', new Blob([buildICS(blocks, learning)], { type: 'text/calendar' }));
+        download('dinalekha-week.ics', new Blob([buildICS(blocks, learning)], { type: 'text/calendar' }));
         toast('Calendar file saved — open it to add to Apple/Google/Outlook calendar');
       } }, icon('cal', 18), 'Add to calendar'),
       h('button.btn.ghost', { onclick: async () => {

@@ -141,5 +141,5 @@ function exportCSV(txns, accounts) {
   const names = Object.fromEntries(accounts.map(a => [a.id, a.name]));
   const esc = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
   const rows = [['Date', 'Type', 'Category', 'Amount', 'Account', 'Note'], ...txns.sort((a, b) => a.date.localeCompare(b.date)).map(t => [t.date, t.type, t.category, t.amount, names[t.accountId] || '', t.note])];
-  download('lifelog-money-' + isoDate() + '.csv', new Blob([rows.map(r => r.map(esc).join(',')).join('\n')], { type: 'text/csv' }));
+  download('dinalekha-money-' + isoDate() + '.csv', new Blob([rows.map(r => r.map(esc).join(',')).join('\n')], { type: 'text/csv' }));
 }

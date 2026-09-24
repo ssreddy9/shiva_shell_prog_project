@@ -1,7 +1,7 @@
 // Tiny promise wrapper around IndexedDB. Everything the app stores lives here,
 // on the device — nothing is sent to a server.
 
-const DB_NAME = 'lifelog';
+const DB_NAME = 'lifelog'; // original storage name — kept so existing data survives the rename
 const VERSION = 1;
 
 export const STORES = {

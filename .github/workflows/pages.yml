@@ -1,4 +1,4 @@
-name: Deploy LifeLog to GitHub Pages
+name: Deploy Dinalekha to GitHub Pages
 
 on:
   push:
