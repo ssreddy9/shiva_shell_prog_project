@@ -83,7 +83,7 @@ function shell() {
   const app = document.getElementById('app');
   clear(app);
   sideNav = h('nav.sidebar', { 'aria-label': 'Main' },
-    h('a.brand', { href: '#/today' }, h('img.brand-logo', { src: 'icons/icon.svg', alt: '', width: 38, height: 38 }), h('span.brand-text', h('strong', 'Dinalekha'), h('small', 'the story of your day'))),
+    h('a.brand', { href: '#/today' }, h('img.brand-logo', { src: 'icons/icon.svg', alt: '', width: 38, height: 38 }), h('span.brand-text', h('strong', 'Dinalekha', h('span.brand-te', { lang: 'te' }, 'దినలేఖ')), h('small', 'the story of your day'))),
     NAV.map(([k, ic, label]) => h('a.nav-link', { href: '#/' + k, 'data-nav': k }, icon(ic), h('span', label))),
     h('button.btn.primary.side-add', { onclick: quickAddSheet }, icon('plus', 18), 'Log something'));
   tabNav = h('nav.tabbar', { 'aria-label': 'Main' }, TABBAR.map(([k, ic, label]) => h('a.tab', { href: '#/' + k, 'data-nav': k }, icon(ic, 22), h('span', label))));

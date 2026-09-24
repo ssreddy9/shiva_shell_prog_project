@@ -6,7 +6,7 @@ import { buildICS } from '../ics.js';
 import { applyTheme } from '../theme.js';
 
 export const title = 'Settings';
-export const APP_VERSION = 'v6';
+export const APP_VERSION = 'v7';
 
 const THEMES = [['indigo', 'Indigo'], ['teal', 'Teal'], ['rose', 'Rose'], ['violet', 'Violet'], ['emerald', 'Emerald'], ['amber', 'Amber'], ['ocean', 'Ocean blue'], ['slate', 'Slate'], ['sunset', 'Sunset (gradient)']];
 
