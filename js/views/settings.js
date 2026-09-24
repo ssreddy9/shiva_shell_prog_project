@@ -6,6 +6,7 @@ import { buildICS } from '../ics.js';
 import { applyTheme } from '../theme.js';
 
 export const title = 'Settings';
+export const APP_VERSION = 'v4';
 
 const THEMES = [['indigo', 'Indigo'], ['teal', 'Teal'], ['rose', 'Rose'], ['violet', 'Violet'], ['emerald', 'Emerald'], ['amber', 'Amber'], ['ocean', 'Ocean blue'], ['slate', 'Slate'], ['sunset', 'Sunset (gradient)']];
 
@@ -118,5 +119,5 @@ export async function render(el) {
       location.reload();
     } }, icon('trash', 16), 'Erase'))));
 
-  el.append(h('p.muted.small.center', 'Dinalekha · works offline · your data never leaves your devices unless you export it.'));
+  el.append(h('p.muted.small.center', 'Dinalekha ' + APP_VERSION + ' · works offline · your data never leaves your devices unless you export it.'));
 }

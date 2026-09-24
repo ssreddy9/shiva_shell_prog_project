@@ -1,5 +1,7 @@
-// Offline support: cache the app shell, serve it cache-first, refresh in the background.
-const VERSION = 'dinalekha-v3';
+// Offline support. Network-first: when online you always get the latest
+// version (revalidated past the browser's HTTP cache); the cached copy is
+// only used when offline.
+const VERSION = 'dinalekha-v4';
 const SHELL = [
   './',
   './index.html',
@@ -34,7 +36,10 @@ const SHELL = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // cache: 'reload' skips the browser HTTP cache so a new version never caches stale files
+  e.waitUntil(caches.open(VERSION)
+    .then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -46,13 +51,15 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
-  e.respondWith(caches.open(VERSION).then(async cache => {
-    const key = req.mode === 'navigate' ? './index.html' : req;
-    const cached = await cache.match(key, { ignoreSearch: true });
-    const fresh = fetch(req).then(res => {
+  const key = req.mode === 'navigate' ? './index.html' : req;
+  e.respondWith((async () => {
+    const cache = await caches.open(VERSION);
+    try {
+      const res = await fetch(req, { cache: 'no-cache' });
       if (res.ok) cache.put(key, res.clone());
       return res;
-    }).catch(() => cached);
-    return cached || fresh;
-  }));
+    } catch {
+      return (await cache.match(key, { ignoreSearch: true })) || Response.error();
+    }
+  })());
 });
