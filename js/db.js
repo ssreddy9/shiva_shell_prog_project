@@ -5,7 +5,7 @@
 
 export const LEGACY_DB = 'lifelog'; // on-device mode (original name, kept so existing data survives)
 let dbName = LEGACY_DB;
-const VERSION = 2;
+const VERSION = 3;
 
 export const STORES = {
   entries: ['kind', 'date'],   // diary, moment, story, idea, quote, journey, activity, review
@@ -19,6 +19,8 @@ export const STORES = {
   vault: [],                   // encrypted documents & cards (metadata + ciphertext)
   vaultfiles: [],              // encrypted file bytes for vault items
   days: [],                    // per-day mood / highlight (keyPath: date)
+  lists: [],                   // checklists: office duties, groceries, packing…
+  listitems: ['list'],         // items of those lists
   settings: [],                // key/value (keyPath: key)
   deleted: [],                 // tombstones so deletes survive backup merges
   outbox: [],                  // changes waiting to be synced (cloud accounts only)

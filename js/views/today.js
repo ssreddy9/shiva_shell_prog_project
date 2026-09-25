@@ -4,6 +4,7 @@ import { editEntry, entryCard, KINDS } from '../kinds.js';
 import { weekStats, learningWeek, loggingStreak } from '../stats.js';
 import { ANCHORS, LEARNING_START } from '../seed.js';
 import { quickTransaction } from './money.js';
+import { todayCards } from './lists.js';
 
 export const title = 'Today';
 
@@ -88,6 +89,9 @@ export async function render(el) {
     h('div.card-head', h('h2', icon('clock', 18), "Today's plan"), h('a.link', { href: '#/schedule' }, 'Edit week')),
     planList,
     h('details.anchors', h('summary', 'Fixed anchors'), h('ul', ANCHORS.map(a => h('li', a))))));
+
+  // ---- office duties (daily to-do lists): plan in the morning, tick off by evening
+  for (const card of await todayCards()) grid.append(card);
 
   // ---- "How's today?" composer: write, tap Post, and it goes to the Feed.
   // Unposted text is kept as a draft on this device so nothing is lost.

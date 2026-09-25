@@ -15,7 +15,7 @@ const FONTS = [
   ['bold', 'Bold', 'Bricolage Grotesque', '"Bricolage Grotesque", sans-serif', 800],
   ['system', 'Simple', 'Your device’s own font', 'system-ui, sans-serif', 800],
 ];
-export const APP_VERSION = 'v11';
+export const APP_VERSION = 'v12';
 
 const THEMES = [['lagoon', 'Lagoon'], ['indigo', 'Indigo'], ['teal', 'Teal'], ['rose', 'Rose'], ['violet', 'Violet'], ['emerald', 'Emerald'], ['amber', 'Amber'], ['ocean', 'Ocean blue'], ['slate', 'Slate'], ['sunset', 'Sunset (gradient)']];
 
