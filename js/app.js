@@ -21,11 +21,12 @@ import * as search from './views/search.js';
 import * as settings from './views/settings.js';
 import * as entry from './views/entry.js';
 import * as more from './views/more.js';
+import * as lists from './views/lists.js';
 
-const ROUTES = { today, feed, write, grow, money, vault, schedule, calendar, search, settings, entry, journey: entry, more };
+const ROUTES = { today, feed, write, grow, money, vault, schedule, calendar, search, settings, entry, journey: entry, more, lists };
 
 const NAV = [
-  ['today', 'sun', 'Today'], ['feed', 'grid', 'Feed'], ['write', 'pen', 'Write'], ['grow', 'sprout', 'Grow'],
+  ['today', 'sun', 'Today'], ['feed', 'grid', 'Feed'], ['write', 'pen', 'Write'], ['lists', 'todo', 'Lists'], ['grow', 'sprout', 'Grow'],
   ['money', 'wallet', 'Money'], ['vault', 'lock', 'Vault'], ['schedule', 'clock', 'Schedule'], ['calendar', 'cal', 'Calendar'],
   ['search', 'search', 'Search'], ['settings', 'gear', 'Settings'],
 ];
@@ -59,7 +60,7 @@ async function renderView({ keepScroll = false } = {}) {
   window.scrollTo(0, same ? y : 0);
   const section = name === 'entry' || name === 'journey' ? '' : name;
   for (const a of document.querySelectorAll('[data-nav]')) {
-    const on = a.dataset.nav === section || (a.dataset.nav === 'more' && ['vault', 'schedule', 'calendar', 'search', 'settings'].includes(section));
+    const on = a.dataset.nav === section || (a.dataset.nav === 'more' && ['lists', 'vault', 'schedule', 'calendar', 'search', 'settings'].includes(section));
     a.classList.toggle('active', on);
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
@@ -77,6 +78,7 @@ function quickAddSheet() {
     ...['diary', 'moment', 'journey', 'story', 'idea', 'quote', 'activity'].map(k => [KINDS[k].label, KINDS[k].icon, () => editEntry(k)]),
     ['Expense', 'down', () => quickTransaction('expense')],
     ['Income', 'up', () => quickTransaction('income')],
+    ['To-do / list', 'todo', () => { location.hash = '#/lists'; }],
     ['Document to vault', 'lock', () => { location.hash = '#/vault'; }],
   ];
   const m = modal('Log something', h('div.sheet-grid', items.map(([label, ic, fn]) => h('button.sheet-item', { onclick: () => { m.close(); fn(); } }, icon(ic, 22), h('span', label)))));

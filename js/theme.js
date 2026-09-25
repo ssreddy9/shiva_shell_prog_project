@@ -1,7 +1,7 @@
 import { getSetting } from './db.js';
 
 export async function applyTheme() {
-  const [theme, accent, font] = await Promise.all([getSetting('theme', 'auto'), getSetting('accent', 'indigo'), getSetting('fontStyle', 'modern')]);
+  const [theme, accent, font] = await Promise.all([getSetting('theme', 'auto'), getSetting('accent', 'lagoon'), getSetting('fontStyle', 'modern')]);
   const root = document.documentElement;
   if (theme === 'auto') root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', theme);

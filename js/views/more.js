@@ -3,6 +3,7 @@ import { h, icon } from '../ui.js';
 export const title = 'More';
 
 const LINKS = [
+  ['#/lists', 'todo', 'Lists', 'Office duties, groceries, hike backpack — tick things off'],
   ['#/vault', 'lock', 'Vault', 'Passport, DL, SSN, cards — encrypted'],
   ['#/schedule', 'clock', 'Weekly schedule', 'Your desk planner — edit blocks, add to calendar'],
   ['#/calendar', 'cal', 'Calendar', 'Everything you logged, day by day'],

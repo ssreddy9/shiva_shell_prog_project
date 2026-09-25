@@ -19,6 +19,8 @@ const step = (name) => { passed++; console.log('  ✓', name); };
 async function device(name, { inject = true } = {}) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
   if (inject) await ctx.addInitScript(MOCK_CLIENT);
+  // A device still on the old no-login version (until the test flips 'joined').
+  else await ctx.addInitScript(() => { if (!localStorage.getItem('joined')) window.__DINALEKHA_LOCAL__ = true; });
   const page = await ctx.newPage();
   page.on('pageerror', e => errors.push(`${name}: ${e.message}`));
   page.on('console', m => { if (m.type() === 'error') errors.push(`${name} console: ${m.text()}`); });
@@ -203,6 +205,7 @@ try {
   await E.page.fill('#f_body', 'Idea saved before accounts existed');
   await E.page.click('.modal button[type=submit]');
   await E.page.waitForTimeout(300);
+  await E.page.evaluate(() => localStorage.setItem('joined', '1'));
   await E.ctx.addInitScript(MOCK_CLIENT);
   await E.page.reload();
   await E.page.waitForSelector('.auth-card');
